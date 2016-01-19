@@ -1,6 +1,7 @@
 import restify from 'restify';
 import bunyan from 'bunyan';
 import valid from './lib/valid';
+import RestClient from './lib/client';
 
 const server = restify.createServer({
   name: 'apiTest',
@@ -13,6 +14,7 @@ server.pre(restify.pre.userAgentConnection());
 server.use(restify.requestLogger());
 server.use(restify.jsonBodyParser());
 server.use(restify.queryParser());
+server.use(restify.acceptParser(server.acceptable));
 
 // middleware example
 function auth(req, res, next) {
@@ -22,17 +24,34 @@ function auth(req, res, next) {
   next();
 }
 
-// global error handler. we just log and return error body to the client
-// in development mode we could return a stack trace if you really wanted to.
-server.on('uncaughtException', (req, res, route, error) => {
-  req.log.error(error);
-  res.send(error.statusCode, error.body);
+// allows us to log exceptions globally if we dont attach a
+// `.catch()` handler to a promise.
+process.on('unhandledRejection', (error, promise) => {
+  console.error('== error: unhandledRejection');
+  console.error(error.stack);
 });
 
-// dummy route
-server.get('/:id', auth, (req, res, next) => {
+server.on('uncaughtException', (req, res, route, error) => {
+  res.send(error);//error.statusCode, error.body);
+});
+
+// dummy routes
+server.get('/test/:id', auth, (req, res, next) => {
   valid.params(req.params, 'query', { allowUnknown: true });
   res.send(200, 'hello world');
+});
+
+server.get('/index.json', (req, res, next) => {
+  res.send(200, { hello: 'world' });
+});
+
+server.get('/localhost', (req, res, next) => {
+  const client = new RestClient();
+  client.get('/index.json')
+    .then((body) => {
+      res.send(200, body);
+    })
+    .catch(next);
 });
 
 server.listen(8080, () => {
