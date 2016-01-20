@@ -32,12 +32,20 @@ process.on('unhandledRejection', (error, promise) => {
 });
 
 server.on('uncaughtException', (req, res, route, error) => {
-  res.send(error);//error.statusCode, error.body);
+  console.error(error.stack);
+  res.send(error);
 });
+
+/*
+// example of how you could listen to a custom request
+server.on('InvalidParameter', (req, res, err, next) => {
+  console.log('asdfasdfasdf');
+});
+*/
 
 // dummy routes
 server.get('/test/:id', auth, (req, res, next) => {
-  valid.params(req.params, 'query', { allowUnknown: true });
+  next.ifError(valid.params(req.params, 'query'));
   res.send(200, 'hello world');
 });
 

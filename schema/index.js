@@ -2,10 +2,14 @@
 
 import Joi from 'joi';
 
-// GET /
+const schemas = new Map();
+
+// GET /test/:id
 const query =  Joi.object().keys({
   foo: Joi.string().required().label('foo'),
   test: Joi.string().required()
 })
+
+schemas.set('/test/:id', query);
 
 module.exports = { query };
