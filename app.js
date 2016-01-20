@@ -18,8 +18,8 @@ server.use(restify.acceptParser(server.acceptable));
 
 // middleware example
 function auth(req, res, next) {
-  if (!req.params.auth) {
-    throw new restify.ForbiddenError('GFY');
+  if (!req.headers.auth) {
+    next(new restify.ForbiddenError('GFY'));
   }
   next();
 }
@@ -47,7 +47,7 @@ server.on('InvalidParameter', (req, res, err, next) => {
 // dummy routes
 server.get('/test/:id', auth, (req, res, next) => {
   next.ifError(valid(req));
-  res.send(200, 'hello world');
+  res.send(200, { hello: 'bobby' });
 });
 
 server.get('/index.json', (req, res, next) => {

@@ -1,22 +1,39 @@
-// example joi validator
-
+// example joi schemas registry
 import Joi from 'joi';
+import assert from 'assert';
 
-let schemas = {};
+// should be an instance of `Map()`
+const schemas = {
+  GET: {},
+  PUT: {},
+  PATCH: {},
+  POST: {},
+  DEL: {},
+};
 
-function byPath(path) {
-  return schemas[path];
+function byPath(method, path) {
+  assert(method);
+  assert(path);
+  
+  return schemas[method][path];
+}
+
+function register(method, path, schema) {
+  assert(method);
+  assert(path);
+  assert(schema);
+
+  method = method.toUpperCase();
+  schemas[method][path] = schema;
 }
 
 // GET /test/:id
-const query =  Joi.object().keys({
+const testSchema = Joi.object().keys({
   foo: Joi.string().required().label('foo'),
-  test: Joi.string().required()
-})
+  test: Joi.string().required(),
+  id: Joi.string().required()
+});
 
-schemas['/test/:id'] = query;
+register('get', '/test/:id', testSchema);
 
-module.exports = { 
-  query,
-  byPath
-}
+module.exports = { byPath }
