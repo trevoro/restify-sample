@@ -2,7 +2,11 @@
 
 import Joi from 'joi';
 
-const schemas = new Map();
+let schemas = {};
+
+function byPath(path) {
+  return schemas[path];
+}
 
 // GET /test/:id
 const query =  Joi.object().keys({
@@ -10,6 +14,9 @@ const query =  Joi.object().keys({
   test: Joi.string().required()
 })
 
-schemas.set('/test/:id', query);
+schemas['/test/:id'] = query;
 
-module.exports = { query };
+module.exports = { 
+  query,
+  byPath
+}

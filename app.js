@@ -37,7 +37,8 @@ server.on('uncaughtException', (req, res, route, error) => {
 });
 
 /*
-// example of how you could listen to a custom request
+// example of how you could listen to a custom error event. If you dont do this
+// the default uncaughtException is thrown.
 server.on('InvalidParameter', (req, res, err, next) => {
   console.log('asdfasdfasdf');
 });
@@ -45,7 +46,7 @@ server.on('InvalidParameter', (req, res, err, next) => {
 
 // dummy routes
 server.get('/test/:id', auth, (req, res, next) => {
-  next.ifError(valid.params(req.params, 'query'));
+  next.ifError(valid(req));
   res.send(200, 'hello world');
 });
 
